@@ -1,8 +1,18 @@
 -- SJA Foundation Investment Management Platform
 -- Supabase Database Schema
 
--- Enable UUID extension
+-- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO anon, authenticated;
+GRANT ALL ON ALL ROUTINES IN SCHEMA public TO anon, authenticated;
+
+-- Set default role for authenticated users
+ALTER ROLE authenticated SET jwt.claims.role = 'client';
 
 -- Users Table
 CREATE TABLE users (
@@ -20,23 +30,23 @@ CREATE TABLE users (
 -- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies for users
+-- Updated RLS Policies for users to prevent recursion
 CREATE POLICY "Users can view their own data" ON users
     FOR SELECT USING (auth.uid() = id);
     
 CREATE POLICY "Admins can view all users" ON users
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update all users" ON users
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
+
+-- Add policy for inserting users
+CREATE POLICY "Allow insert for authenticated users" ON users
+    FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- KYC Documents Table
 CREATE TABLE kyc_docs (
@@ -74,16 +84,12 @@ CREATE POLICY "Users can update their own KYC docs" ON kyc_docs
     
 CREATE POLICY "Admins can view all KYC docs" ON kyc_docs
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update all KYC docs" ON kyc_docs
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Investments Table
@@ -112,16 +118,12 @@ CREATE POLICY "Users can insert their own investments" ON investments
     
 CREATE POLICY "Admins can view all investments" ON investments
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update all investments" ON investments
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Wallets Table
@@ -142,16 +144,12 @@ CREATE POLICY "Users can view their own wallet" ON wallets
     
 CREATE POLICY "Admins can view all wallets" ON wallets
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update all wallets" ON wallets
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Transactions Table
@@ -187,16 +185,12 @@ CREATE POLICY "Users can insert their own transactions" ON transactions
     
 CREATE POLICY "Admins can view all transactions" ON transactions
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update all transactions" ON transactions
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Nominees Table
@@ -227,9 +221,7 @@ CREATE POLICY "Users can update their own nominees" ON nominees
     
 CREATE POLICY "Admins can view all nominees" ON nominees
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Referrals Table
@@ -251,23 +243,17 @@ CREATE POLICY "Users can view their own referrals" ON referrals
     
 CREATE POLICY "Admins can view all referrals" ON referrals
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can insert referrals" ON referrals
     FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update referrals" ON referrals
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Earnings Table
@@ -290,16 +276,12 @@ CREATE POLICY "Users can view their own earnings" ON earnings
     
 CREATE POLICY "Admins can view all earnings" ON earnings
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can insert earnings" ON earnings
     FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
 -- Notifications Table
@@ -326,51 +308,45 @@ CREATE POLICY "Users can update their own notifications" ON notifications
     
 CREATE POLICY "Admins can view all notifications" ON notifications
     FOR SELECT USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can insert notifications" ON notifications
     FOR INSERT WITH CHECK (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
     
 CREATE POLICY "Admins can update notifications" ON notifications
     FOR UPDATE USING (
-        EXISTS (
-            SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin'
-        )
+        auth.jwt() ->> 'role' = 'admin'
     );
 
--- Create a function to handle new user registrations
-CREATE OR REPLACE FUNCTION handle_new_user() 
+-- Function to handle new user creation and set role in JWT
+CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Insert into users table
-    INSERT INTO users (id, name, email, phone, role)
-    VALUES (
-        NEW.id, 
-        COALESCE(NEW.raw_user_meta_data->>'name', 'User'),
-        NEW.email,
-        COALESCE(NEW.raw_user_meta_data->>'phone', ''),
-        'client'
-    );
-    
-    -- Create wallet for the user
+    -- Create a wallet for the new user
     INSERT INTO wallets (user_id, balance)
     VALUES (NEW.id, 0);
+    
+    -- Set the role claim in the JWT
+    UPDATE auth.users 
+    SET raw_app_meta_data = jsonb_set(
+        COALESCE(raw_app_meta_data, '{}'::jsonb),
+        '{role}',
+        '"client"'
+    )
+    WHERE id = NEW.id;
     
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger to call the function on new user creation
-CREATE TRIGGER on_auth_user_created
-AFTER INSERT ON auth.users
-FOR EACH ROW EXECUTE FUNCTION handle_new_user();
+-- Trigger for new user creation
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_new_user();
 
 -- Create a function to handle referrals
 CREATE OR REPLACE FUNCTION process_referral(
