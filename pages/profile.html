@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - SJA Foundation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SJA Foundation</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="client-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="investments.html"><i class="bi bi-graph-up"></i> Investments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="wallet.html"><i class="bi bi-wallet2"></i> Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="kyc.html"><i class="bi bi-person-vcard"></i> KYC</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="profile.html"><i class="bi bi-person-circle"></i> Profile</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 pt-4">
+        <div class="row">
+            <div class="col-md-3">
+                <!-- Profile Navigation -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="text-center mb-4">
+                            <div class="profile-avatar mb-3">
+                                <img src="../assets/img/default-avatar.png" alt="Profile" class="rounded-circle" width="100" height="100" id="profileAvatar">
+                            </div>
+                            <h5 class="mb-0" id="profileName">Loading...</h5>
+                            <p class="text-muted" id="profileEmail">loading@example.com</p>
+                        </div>
+                        <div class="nav flex-column nav-pills">
+                            <button class="nav-link active mb-2" data-bs-toggle="pill" data-bs-target="#personal-info">
+                                <i class="bi bi-person"></i> Personal Information
+                            </button>
+                            <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#security">
+                                <i class="bi bi-shield-lock"></i> Security
+                            </button>
+                            <button class="nav-link mb-2" data-bs-toggle="pill" data-bs-target="#preferences">
+                                <i class="bi bi-gear"></i> Preferences
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-9">
+                <div class="tab-content">
+                    <!-- Personal Information Section -->
+                    <div class="tab-pane fade show active" id="personal-info">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Personal Information</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="personalInfoForm">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">First Name</label>
+                                            <input type="text" class="form-control" id="firstName" required>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Last Name</label>
+                                            <input type="text" class="form-control" id="lastName" required>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" readonly>
+                                        <small class="text-muted">Email cannot be changed</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Address</label>
+                                        <textarea class="form-control" id="address" rows="3" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Section -->
+                    <div class="tab-pane fade" id="security">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Security Settings</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="passwordForm">
+                                    <div class="mb-3">
+                                        <label class="form-label">Current Password</label>
+                                        <input type="password" class="form-control" id="currentPassword" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">New Password</label>
+                                        <input type="password" class="form-control" id="newPassword" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Confirm New Password</label>
+                                        <input type="password" class="form-control" id="confirmPassword" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Change Password</button>
+                                </form>
+
+                                <hr>
+
+                                <h6 class="mb-3">Two-Factor Authentication</h6>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enable2FA">
+                                    <label class="form-check-label" for="enable2FA">Enable Two-Factor Authentication</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preferences Section -->
+                    <div class="tab-pane fade" id="preferences">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Preferences</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="preferencesForm">
+                                    <h6 class="mb-3">Email Notifications</h6>
+                                    <div class="mb-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="investmentUpdates">
+                                            <label class="form-check-label" for="investmentUpdates">
+                                                Investment Updates
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="walletUpdates">
+                                            <label class="form-check-label" for="walletUpdates">
+                                                Wallet Transactions
+                                            </label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="kycUpdates">
+                                            <label class="form-check-label" for="kycUpdates">
+                                                KYC Status Updates
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <h6 class="mb-3">Theme Preferences</h6>
+                                    <div class="mb-3">
+                                        <select class="form-select" id="themePreference">
+                                            <option value="light">Light Theme</option>
+                                            <option value="dark">Dark Theme</option>
+                                            <option value="system">System Default</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary">Save Preferences</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/profile.js"></script>
+</body>
+
+</html> 

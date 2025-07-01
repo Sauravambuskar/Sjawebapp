@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Referrals - SJA Foundation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <!-- Vis.js for network visualization -->
+    <link href="https://unpkg.com/vis-network/dist/dist/vis-network.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">SJA Foundation</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="client-dashboard.html"><i class="bi bi-speedometer2"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="investments.html"><i class="bi bi-graph-up"></i> Investments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="wallet.html"><i class="bi bi-wallet2"></i> Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="kyc.html"><i class="bi bi-person-vcard"></i> KYC</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="referrals.html"><i class="bi bi-people"></i> Referrals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="profile.html"><i class="bi bi-person-circle"></i> Profile</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logoutBtn"><i class="bi bi-box-arrow-right"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5 pt-4">
+        <!-- Referral Stats -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Total Referrals</h6>
+                        <h2 class="card-title" id="totalReferrals">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Active Referrals</h6>
+                        <h2 class="card-title" id="activeReferrals">0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Total Earnings</h6>
+                        <h2 class="card-title" id="totalEarnings">₹0</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">Network Level</h6>
+                        <h2 class="card-title" id="networkLevel">0</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Referral Network -->
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Referral Network</h5>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-outline-primary" id="zoomIn">
+                                <i class="bi bi-zoom-in"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" id="zoomOut">
+                                <i class="bi bi-zoom-out"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-primary" id="resetView">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="networkVisualization" style="height: 500px; border: 1px solid #ddd;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Referral Tools -->
+            <div class="col-md-4">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Referral Link</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" id="referralLink" readonly>
+                            <button class="btn btn-outline-primary" type="button" id="copyLink">
+                                <i class="bi bi-clipboard"></i> Copy
+                            </button>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" id="shareWhatsApp">
+                                <i class="bi bi-whatsapp"></i> Share on WhatsApp
+                            </button>
+                            <button class="btn btn-primary" id="shareEmail">
+                                <i class="bi bi-envelope"></i> Share via Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Commission Structure</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Level</th>
+                                        <th>Commission</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="commissionTable">
+                                    <!-- Will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Referral History -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Referral History</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Level</th>
+                                <th>Joined Date</th>
+                                <th>Investment</th>
+                                <th>Commission Earned</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="referralHistory">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/vis-network/dist/dist/vis-network.min.js"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/auth.js"></script>
+    <script src="../assets/js/referrals.js"></script>
+</body>
+
+</html> 

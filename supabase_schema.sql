@@ -48,6 +48,38 @@ CREATE POLICY "Admins can update all users" ON users
 CREATE POLICY "Allow insert for authenticated users" ON users
     FOR INSERT WITH CHECK (auth.uid() = id);
 
+-- Profiles Table
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id),
+    first_name VARCHAR(100),
+    last_name VARCHAR(100),
+    address TEXT,
+    notification_investment BOOLEAN DEFAULT true,
+    notification_wallet BOOLEAN DEFAULT true,
+    notification_kyc BOOLEAN DEFAULT true,
+    two_factor_enabled BOOLEAN DEFAULT false,
+    theme_preference VARCHAR(20) DEFAULT 'light',
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for profiles
+CREATE POLICY "Users can view their own profile" ON profiles
+    FOR SELECT USING (auth.uid() = id);
+    
+CREATE POLICY "Users can update their own profile" ON profiles
+    FOR UPDATE USING (auth.uid() = id);
+    
+CREATE POLICY "Users can insert their own profile" ON profiles
+    FOR INSERT WITH CHECK (auth.uid() = id);
+    
+CREATE POLICY "Admins can view all profiles" ON profiles
+    FOR SELECT USING (
+        auth.jwt() ->> 'role' = 'admin'
+    );
+
 -- KYC Documents Table
 CREATE TABLE kyc_docs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -328,6 +360,10 @@ BEGIN
     -- Create a wallet for the new user
     INSERT INTO wallets (user_id, balance)
     VALUES (NEW.id, 0);
+    
+    -- Create a profile for the new user
+    INSERT INTO profiles (id)
+    VALUES (NEW.id);
     
     -- Set the role claim in the JWT
     UPDATE auth.users 
