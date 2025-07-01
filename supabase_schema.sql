@@ -27,8 +27,8 @@ CREATE TABLE users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable Row Level Security
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+-- Disable Row Level Security
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
 
 -- Updated RLS Policies for users to prevent recursion
 CREATE POLICY "Users can view their own data" ON users
@@ -399,4 +399,21 @@ $$ LANGUAGE plpgsql;
 -- Trigger to calculate maturity date on investment creation
 CREATE TRIGGER on_investment_created
 BEFORE INSERT ON investments
-FOR EACH ROW EXECUTE FUNCTION calculate_investment_maturity(); 
+FOR EACH ROW EXECUTE FUNCTION calculate_investment_maturity();
+
+-- Insert the admin user into our users table
+INSERT INTO users (
+    id,
+    name,
+    email,
+    phone,
+    role
+)
+SELECT 
+    id,
+    'Admin User',
+    email,
+    '1234567890',
+    'admin'
+FROM auth.users
+WHERE email = 'YOUR_ADMIN_EMAIL';  -- Replace with the email you used 
