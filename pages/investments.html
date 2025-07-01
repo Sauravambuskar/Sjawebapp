@@ -27,6 +27,9 @@
                         <a class="nav-link active" href="investments.html">Investments</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="wallet.html">Wallet</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="kyc.html">KYC</a>
                     </li>
                 </ul>
@@ -41,61 +44,71 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container my-5">
-        <div class="row">
-            <!-- Investment Summary -->
-            <div class="col-md-4 mb-4">
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="mb-0">Investments</h3>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newInvestmentModal">
+                <i class="bi bi-plus-lg"></i> New Investment
+            </button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Investment Summary</h5>
-                        <div class="summary-stats mt-4">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Invested</span>
-                                <h3 class="stat-value" id="total-invested">₹0</h3>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Active Investments</span>
-                                <h3 class="stat-value" id="active-investments">0</h3>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Total Returns</span>
-                                <h3 class="stat-value" id="total-returns">₹0</h3>
-                            </div>
-                        </div>
+                        <h6 class="text-muted mb-1">Total Invested</h6>
+                        <h3 class="mb-0" id="total-invested">₹0.00</h3>
                     </div>
-                </div>
-
-                <!-- New Investment Button -->
-                <div class="mt-4">
-                    <button class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#newInvestmentModal">
-                        <i class="bi bi-plus-circle me-2"></i>New Investment
-                    </button>
                 </div>
             </div>
-
-            <!-- Investment List -->
-            <div class="col-md-8">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
-                        <h5 class="card-title">Your Investments</h5>
-                        <div class="table-responsive mt-4">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                        <th>Start Date</th>
-                                        <th>Duration</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="investments-table">
-                                    <!-- Investments will be loaded here -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <h6 class="text-muted mb-1">Active Investments</h6>
+                        <h3 class="mb-0" id="active-investments">0</h3>
                     </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="text-muted mb-1">Total Returns</h6>
+                        <h3 class="mb-0" id="total-returns">₹0.00</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Chart -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Investment Growth</h5>
+                <canvas id="investment-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Investments Table -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Your Investments</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Interest Rate</th>
+                                <th>Start Date</th>
+                                <th>Maturity Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="investments-table-body">
+                            <!-- Investments will be loaded dynamically -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -103,7 +116,7 @@
 
     <!-- New Investment Modal -->
     <div class="modal fade" id="newInvestmentModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">New Investment</h5>
@@ -117,18 +130,19 @@
                                 <option value="">Select Type</option>
                                 <option value="fixed">Fixed Deposit</option>
                                 <option value="recurring">Recurring Deposit</option>
-                                <option value="mutual">Mutual Fund</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Amount (₹)</label>
-                            <input type="number" class="form-control" id="investment-amount" required min="1000">
-                            <small class="text-muted">Minimum investment: ₹1,000</small>
+                            <input type="number" class="form-control" id="investment-amount" required>
+                            <div class="form-text">Minimum: ₹1,000</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Duration (Months)</label>
                             <select class="form-select" id="investment-duration" required>
                                 <option value="11">11 Months</option>
+                                <option value="22">22 Months</option>
+                                <option value="33">33 Months</option>
                             </select>
                         </div>
                         <div class="mb-3">
@@ -146,131 +160,54 @@
         </div>
     </div>
 
+    <!-- Investment Details Modal -->
+    <div class="modal fade" id="investmentDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Investment Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="text-muted">Investment Type</label>
+                        <h5 id="investment-details-type"></h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Amount</label>
+                        <h5 id="investment-details-amount"></h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Interest Rate</label>
+                        <h5 id="investment-details-interest"></h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Start Date</label>
+                        <h5 id="investment-details-start"></h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Maturity Date</label>
+                        <h5 id="investment-details-maturity"></h5>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted">Current Returns</label>
+                        <h5 id="investment-details-returns"></h5>
+                    </div>
+                    <div>
+                        <label class="text-muted">Status</label>
+                        <h5><span id="investment-details-status" class="badge"></span></h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="../assets/js/config.js"></script>
     <script src="../assets/js/theme.js"></script>
-    <script>
-        // Check authentication
-        document.addEventListener('DOMContentLoaded', async function() {
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            if (error || !user) {
-                window.location.href = '/';
-            }
-            loadInvestments();
-        });
-
-        // Load Investments
-        async function loadInvestments() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const { data: investments, error } = await supabaseClient
-                .from('investments')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at', { ascending: false });
-
-            if (error) {
-                alert('Error loading investments: ' + error.message);
-                return;
-            }
-
-            updateSummary(investments);
-            updateInvestmentTable(investments);
-        }
-
-        // Update Summary
-        function updateSummary(investments) {
-            const totalInvested = investments.reduce((sum, inv) => sum + inv.amount, 0);
-            const activeInvestments = investments.filter(inv => inv.status === 'active').length;
-            const totalReturns = investments.reduce((sum, inv) => {
-                if (inv.status === 'active') {
-                    const monthlyInterest = (inv.amount * inv.interest_rate) / (12 * 100);
-                    const months = Math.floor((new Date() - new Date(inv.start_date)) / (30 * 24 * 60 * 60 * 1000));
-                    return sum + (monthlyInterest * months);
-                }
-                return sum;
-            }, 0);
-
-            document.getElementById('total-invested').textContent = `₹${totalInvested.toFixed(2)}`;
-            document.getElementById('active-investments').textContent = activeInvestments;
-            document.getElementById('total-returns').textContent = `₹${totalReturns.toFixed(2)}`;
-        }
-
-        // Update Investment Table
-        function updateInvestmentTable(investments) {
-            const tableBody = document.getElementById('investments-table');
-            tableBody.innerHTML = '';
-
-            investments.forEach(inv => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${inv.type.charAt(0).toUpperCase() + inv.type.slice(1)}</td>
-                    <td>₹${inv.amount.toFixed(2)}</td>
-                    <td>${new Date(inv.start_date).toLocaleDateString()}</td>
-                    <td>${inv.duration} months</td>
-                    <td>
-                        <span class="badge bg-${inv.status === 'active' ? 'success' : 'secondary'}">
-                            ${inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
-                        </span>
-                    </td>
-                    <td>
-                        <button class="btn btn-sm btn-outline-primary" onclick="viewInvestment('${inv.id}')">
-                            View
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        // Create Investment
-        async function createInvestment() {
-            const type = document.getElementById('investment-type').value;
-            const amount = parseFloat(document.getElementById('investment-amount').value);
-            const duration = parseInt(document.getElementById('investment-duration').value);
-            const interestRate = parseFloat(document.getElementById('interest-rate').value);
-
-            if (!type || !amount || !duration) {
-                alert('Please fill all required fields');
-                return;
-            }
-
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            
-            const { data, error } = await supabaseClient
-                .from('investments')
-                .insert([{
-                    user_id: user.id,
-                    type,
-                    amount,
-                    duration,
-                    interest_rate: interestRate,
-                    status: 'active'
-                }]);
-
-            if (error) {
-                alert('Error creating investment: ' + error.message);
-                return;
-            }
-
-            // Close modal and reload investments
-            const modal = bootstrap.Modal.getInstance(document.getElementById('newInvestmentModal'));
-            modal.hide();
-            loadInvestments();
-        }
-
-        // View Investment
-        function viewInvestment(id) {
-            // Implement investment details view
-            alert('Investment details view will be implemented here');
-        }
-
-        // Logout function
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            window.location.href = '/';
-        }
-    </script>
+    <script src="../assets/js/client-dashboard.js"></script>
 </body>
 </html> 
