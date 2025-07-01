@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet - SJA Foundation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="client-dashboard.html">
+                <img src="../assets/img/logo.svg" alt="SJA Foundation" height="30">
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="client-dashboard.html">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="investments.html">Investments</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="wallet.html">Wallet</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="kyc.html">KYC</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light me-2" id="theme-toggle">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <button class="btn btn-outline-light" onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row">
+            <!-- Wallet Balance -->
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Wallet Balance</h5>
+                        <div class="text-center my-4">
+                            <h2 class="display-4" id="wallet-balance">₹0.00</h2>
+                            <p class="text-muted">Available Balance</p>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#depositModal">
+                                <i class="bi bi-plus-circle me-2"></i>Add Money
+                            </button>
+                            <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                                <i class="bi bi-arrow-down-circle me-2"></i>Withdraw
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bank Details -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">Bank Details</h5>
+                        <div class="mt-3">
+                            <p class="mb-2"><strong>Account Name:</strong> SJA Foundation</p>
+                            <p class="mb-2"><strong>Account Number:</strong> 1234567890</p>
+                            <p class="mb-2"><strong>IFSC Code:</strong> SBIN0123456</p>
+                            <p class="mb-0"><strong>Bank:</strong> State Bank of India</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Transaction History</h5>
+                        <div class="table-responsive mt-4">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Type</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Reference</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-table">
+                                    <!-- Transactions will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Money to Wallet</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="deposit-form">
+                        <div class="mb-3">
+                            <label class="form-label">Amount (₹)</label>
+                            <input type="number" class="form-control" id="deposit-amount" required min="100">
+                            <small class="text-muted">Minimum deposit: ₹100</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Method</label>
+                            <select class="form-select" id="deposit-method" required>
+                                <option value="">Select Method</option>
+                                <option value="bank_transfer">Bank Transfer</option>
+                                <option value="upi">UPI</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Transaction Reference</label>
+                            <input type="text" class="form-control" id="deposit-reference" required>
+                            <small class="text-muted">UTR number or transaction ID</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Payment Proof</label>
+                            <input type="file" class="form-control" id="deposit-proof" accept="image/*" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitDeposit()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Withdraw Money</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="withdraw-form">
+                        <div class="mb-3">
+                            <label class="form-label">Amount (₹)</label>
+                            <input type="number" class="form-control" id="withdraw-amount" required min="100">
+                            <small class="text-muted">Minimum withdrawal: ₹100</small>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Withdrawal Type</label>
+                            <select class="form-select" id="withdraw-type" required>
+                                <option value="regular">Regular (10% fee)</option>
+                                <option value="emergency">Emergency (13% fee)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3" id="emergency-reason-container" style="display: none;">
+                            <label class="form-label">Emergency Reason</label>
+                            <textarea class="form-control" id="emergency-reason" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Bank Name</label>
+                            <input type="text" class="form-control" id="bank-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Account Number</label>
+                            <input type="text" class="form-control" id="account-number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">IFSC Code</label>
+                            <input type="text" class="form-control" id="ifsc-code" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitWithdrawal()">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../assets/js/config.js"></script>
+    <script src="../assets/js/theme.js"></script>
+    <script>
+        // Check authentication
+        document.addEventListener('DOMContentLoaded', async function() {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+            if (error || !user) {
+                window.location.href = '/';
+            }
+            loadWalletData();
+
+            // Show/hide emergency reason field
+            document.getElementById('withdraw-type').addEventListener('change', function() {
+                document.getElementById('emergency-reason-container').style.display = 
+                    this.value === 'emergency' ? 'block' : 'none';
+            });
+        });
+
+        // Load Wallet Data
+        async function loadWalletData() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            
+            // Get wallet balance
+            const { data: wallet, error: walletError } = await supabaseClient
+                .from('wallets')
+                .select('balance')
+                .eq('user_id', user.id)
+                .single();
+
+            if (walletError) {
+                alert('Error loading wallet: ' + walletError.message);
+                return;
+            }
+
+            document.getElementById('wallet-balance').textContent = `₹${wallet.balance.toFixed(2)}`;
+
+            // Get transactions
+            const { data: transactions, error: transError } = await supabaseClient
+                .from('transactions')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (transError) {
+                alert('Error loading transactions: ' + transError.message);
+                return;
+            }
+
+            updateTransactionTable(transactions);
+        }
+
+        // Update Transaction Table
+        function updateTransactionTable(transactions) {
+            const tableBody = document.getElementById('transactions-table');
+            tableBody.innerHTML = '';
+
+            transactions.forEach(trans => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${new Date(trans.created_at).toLocaleDateString()}</td>
+                    <td>
+                        <span class="badge bg-${trans.type === 'deposit' ? 'success' : 'primary'}">
+                            ${trans.type.charAt(0).toUpperCase() + trans.type.slice(1)}
+                        </span>
+                    </td>
+                    <td>₹${trans.amount.toFixed(2)}</td>
+                    <td>
+                        <span class="badge bg-${getStatusColor(trans.status)}">
+                            ${trans.status.charAt(0).toUpperCase() + trans.status.slice(1)}
+                        </span>
+                    </td>
+                    <td>${trans.reference || '-'}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Get status color
+        function getStatusColor(status) {
+            switch(status) {
+                case 'pending': return 'warning';
+                case 'completed': return 'success';
+                case 'rejected': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        // Submit Deposit
+        async function submitDeposit() {
+            const amount = parseFloat(document.getElementById('deposit-amount').value);
+            const method = document.getElementById('deposit-method').value;
+            const reference = document.getElementById('deposit-reference').value;
+            const proofFile = document.getElementById('deposit-proof').files[0];
+
+            if (!amount || !method || !reference || !proofFile) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            // Upload proof
+            const fileName = `${user.id}/deposit_${Date.now()}${proofFile.name.substring(proofFile.name.lastIndexOf('.'))}`;
+            const { data: uploadData, error: uploadError } = await supabaseClient.storage
+                .from('transaction_proofs')
+                .upload(fileName, proofFile);
+
+            if (uploadError) {
+                alert('Error uploading proof: ' + uploadError.message);
+                return;
+            }
+
+            const { publicURL } = supabaseClient.storage
+                .from('transaction_proofs')
+                .getPublicUrl(fileName);
+
+            // Create transaction
+            const { error: transError } = await supabaseClient
+                .from('transactions')
+                .insert([{
+                    user_id: user.id,
+                    type: 'deposit',
+                    amount,
+                    status: 'pending',
+                    payment_method: method,
+                    reference,
+                    proof_url: publicURL
+                }]);
+
+            if (transError) {
+                alert('Error creating transaction: ' + transError.message);
+                return;
+            }
+
+            // Close modal and reload data
+            const modal = bootstrap.Modal.getInstance(document.getElementById('depositModal'));
+            modal.hide();
+            loadWalletData();
+        }
+
+        // Submit Withdrawal
+        async function submitWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdraw-amount').value);
+            const type = document.getElementById('withdraw-type').value;
+            const reason = document.getElementById('emergency-reason').value;
+            const bankName = document.getElementById('bank-name').value;
+            const accountNumber = document.getElementById('account-number').value;
+            const ifscCode = document.getElementById('ifsc-code').value;
+
+            if (!amount || !type || !bankName || !accountNumber || !ifscCode) {
+                alert('Please fill all required fields');
+                return;
+            }
+
+            if (type === 'emergency' && !reason) {
+                alert('Please provide emergency reason');
+                return;
+            }
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+
+            // Create transaction
+            const { error: transError } = await supabaseClient
+                .from('transactions')
+                .insert([{
+                    user_id: user.id,
+                    type: 'withdraw',
+                    amount,
+                    status: 'pending',
+                    withdrawal_type: type,
+                    emergency_reason: reason,
+                    bank_name: bankName,
+                    account_number: accountNumber,
+                    ifsc_code: ifscCode
+                }]);
+
+            if (transError) {
+                alert('Error creating transaction: ' + transError.message);
+                return;
+            }
+
+            // Close modal and reload data
+            const modal = bootstrap.Modal.getInstance(document.getElementById('withdrawModal'));
+            modal.hide();
+            loadWalletData();
+        }
+
+        // Logout function
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = '/';
+        }
+    </script>
+</body>
+</html> 
