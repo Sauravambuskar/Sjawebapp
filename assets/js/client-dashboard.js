@@ -313,68 +313,77 @@ async function loadRecentActivities() {
 async function updateCharts() {
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
+        
+        // Get investment data
+        const { data: investments, error: investError } = await supabaseClient
+            .from('investments')
+            .select('*')
+            .eq('user_id', user.id);
 
-        // Investment growth chart
-        const investmentChart = document.getElementById('investment-chart');
-        if (investmentChart) {
-            const { data: investments } = await supabaseClient
-                .from('investments')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('created_at');
+        if (investError) throw investError;
 
-            const monthlyData = {};
+        // Get referral levels
+        const { data: referralLevels, error: refError } = await supabaseClient
+            .from('referrals')
+            .select('level')
+            .eq('referrer_id', user.id);
+
+        if (refError) throw refError;
+
+        // Safely update charts only if data exists
+        if (investments && investments.length > 0) {
+            // Investment distribution chart
+            const investmentTypes = {};
             investments.forEach(inv => {
-                const month = new Date(inv.created_at).toLocaleString('default', { month: 'short', year: 'numeric' });
-                monthlyData[month] = (monthlyData[month] || 0) + inv.amount;
+                investmentTypes[inv.type] = (investmentTypes[inv.type] || 0) + inv.amount;
             });
 
-            new Chart(investmentChart, {
-                type: 'line',
-                data: {
-                    labels: Object.keys(monthlyData),
-                    datasets: [{
-                        label: 'Investment Growth',
-                        data: Object.values(monthlyData),
-                        borderColor: '#0d6efd',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+            const investmentChart = new Chart(
+                document.getElementById('investment-distribution'),
+                {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(investmentTypes),
+                        datasets: [{
+                            data: Object.values(investmentTypes),
+                            backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+                        }]
+                    }
                 }
-            });
+            );
         }
 
-        // Referral network chart
-        const referralChart = document.getElementById('referral-chart');
-        if (referralChart) {
-            const { data: referrals } = await supabaseClient
-                .from('referrals')
-                .select('level')
-                .eq('referrer_id', user.id);
-
+        if (referralLevels && referralLevels.length > 0) {
+            // Referral levels chart
             const levelCounts = {};
-            referrals.forEach(ref => {
+            referralLevels.forEach(ref => {
                 levelCounts[`Level ${ref.level}`] = (levelCounts[`Level ${ref.level}`] || 0) + 1;
             });
 
-            new Chart(referralChart, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(levelCounts),
-                    datasets: [{
-                        label: 'Referrals by Level',
-                        data: Object.values(levelCounts),
-                        backgroundColor: '#0d6efd'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
+            const referralChart = new Chart(
+                document.getElementById('referral-distribution'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(levelCounts),
+                        datasets: [{
+                            label: 'Referrals',
+                            data: Object.values(levelCounts),
+                            backgroundColor: '#4e73df'
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
+                            }
+                        }
+                    }
                 }
-            });
+            );
         }
 
     } catch (error) {
@@ -384,35 +393,85 @@ async function updateCharts() {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Theme toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    if (themeToggle) {
-        themeToggle.addEventListener('click', toggleTheme);
-    }
+    try {
+        // Add sidebar toggle button to the DOM
+        const toggleButton = document.createElement('button');
+        toggleButton.className = 'sidebar-toggle';
+        toggleButton.innerHTML = '<i class="bi bi-list"></i>';
+        document.body.appendChild(toggleButton);
 
-    // Sidebar toggle
-    const sidebarToggle = document.getElementById('sidebar-toggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', () => {
-            document.getElementById('sidebar').classList.toggle('collapsed');
-            document.getElementById('main-content').classList.toggle('expanded');
+        // Add sidebar overlay to the DOM
+        const overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+
+        // Sidebar toggle functionality
+        const sidebar = document.querySelector('.sidebar');
+        const mainContent = document.querySelector('.main-content');
+        
+        function toggleSidebar() {
+            const isMobile = window.innerWidth <= 992;
+            
+            if (isMobile) {
+                sidebar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+            } else {
+                sidebar.classList.toggle('sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+            }
+        }
+
+        // Toggle button click handler
+        toggleButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleSidebar();
         });
-    }
 
-    // Navigation links
-    document.querySelectorAll('[data-page]').forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = link.getAttribute('data-page');
-            window.location.href = `${page}.html`;
+        // Overlay click handler (mobile only)
+        overlay.addEventListener('click', () => {
+            if (window.innerWidth <= 992) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
         });
-    });
 
-    // Logout button
-    document.getElementById('logout-btn').addEventListener('click', logout);
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                const isMobile = window.innerWidth <= 992;
+                
+                if (!isMobile) {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }, 250);
+        });
 
-    // Form submissions
-    setupFormSubmissions();
+        // Close sidebar when clicking outside (mobile only)
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 992 && 
+                !sidebar.contains(e.target) && 
+                !toggleButton.contains(e.target) && 
+                sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // Setup other event listeners
+        setupFormSubmissions();
+        setupThemeToggle();
+        setupNotifications();
+        
+    } catch (error) {
+        console.error('Error setting up event listeners:', error);
+    }
 }
 
 // Setup form submissions
@@ -661,6 +720,44 @@ async function submitWithdrawal(e) {
     }
 }
 
+async function submitNominee(e) {
+    e.preventDefault();
+    try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        const formData = new FormData(e.target);
+        
+        // Upload nominee photo if provided
+        let photoUrl = null;
+        const photoFile = formData.get('photo');
+        if (photoFile.size > 0) {
+            photoUrl = await uploadDocument(photoFile, 'nominee-photo');
+        }
+
+        const nomineeData = {
+            user_id: user.id,
+            name: formData.get('name'),
+            dob: formData.get('dob'),
+            relation: formData.get('relation'),
+            blood_group: formData.get('blood_group'),
+            phone: formData.get('phone'),
+            photo: photoUrl
+        };
+
+        const { error } = await supabaseClient
+            .from('nominees')
+            .insert(nomineeData);
+
+        if (error) throw error;
+
+        alert('Nominee added successfully!');
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error submitting nominee:', error);
+        alert('Failed to add nominee. Please try again.');
+    }
+}
+
 // Utility functions
 function formatCurrency(amount) {
     return new Intl.NumberFormat('en-IN', {
@@ -722,5 +819,50 @@ async function logout() {
     } catch (error) {
         console.error('Error logging out:', error);
         alert('Error logging out');
+    }
+}
+
+function setupThemeToggle() {
+    const themeToggle = document.getElementById('theme-toggle');
+    if (themeToggle) {
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-bs-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-bs-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update toggle button icon
+            const icon = themeToggle.querySelector('i');
+            icon.className = newTheme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+        });
+    }
+}
+
+function setupNotifications() {
+    const notificationBell = document.getElementById('notification-bell');
+    if (notificationBell) {
+        notificationBell.addEventListener('click', async () => {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const { data: notifications, error } = await supabaseClient
+                    .from('notifications')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .eq('read_status', false)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                // Update notification badge
+                const badge = notificationBell.querySelector('.notification-badge');
+                if (badge) {
+                    badge.textContent = notifications.length;
+                    badge.style.display = notifications.length > 0 ? 'block' : 'none';
+                }
+
+            } catch (error) {
+                console.error('Error fetching notifications:', error);
+            }
+        });
     }
 } 

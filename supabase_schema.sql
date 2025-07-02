@@ -353,6 +353,33 @@ CREATE POLICY "Admins can update notifications" ON notifications
         auth.jwt() ->> 'role' = 'admin'
     );
 
+-- Activities Table
+CREATE TABLE activities (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id),
+    type VARCHAR(50) NOT NULL, -- investment, withdrawal, deposit, kyc, referral
+    description TEXT NOT NULL,
+    metadata JSONB,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Enable Row Level Security
+ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for activities
+CREATE POLICY "Users can view their own activities" ON activities
+    FOR SELECT USING (auth.uid() = user_id);
+    
+CREATE POLICY "Admins can view all activities" ON activities
+    FOR SELECT USING (
+        auth.jwt() ->> 'role' = 'admin'
+    );
+    
+CREATE POLICY "Admins can insert activities" ON activities
+    FOR INSERT WITH CHECK (
+        auth.jwt() ->> 'role' = 'admin'
+    );
+
 -- Function to handle new user creation and set role in JWT
 CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
