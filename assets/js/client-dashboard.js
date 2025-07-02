@@ -79,12 +79,92 @@ async function loadUserData() {
             .select('id', { count: 'exact' })
             .eq('referrer_id', user.id);
 
-        const level = Math.min(Math.floor(referralCount / 10) + 1, 11);
+        const level = Math.min(Math.floor((referralCount || 0) / 10) + 1, 11);
         document.getElementById('user-level').textContent = `Level ${level}`;
+
+        // Update sidebar badges
+        await updateSidebarBadges();
 
     } catch (error) {
         console.error('Error loading user data:', error);
     }
+}
+
+// Update sidebar badges with real-time data
+async function updateSidebarBadges() {
+    try {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+
+        // Update wallet badge
+        const { data: wallet } = await supabaseClient
+            .from('wallets')
+            .select('balance')
+            .eq('user_id', user.id)
+            .single();
+
+        if (wallet && document.getElementById('wallet-badge')) {
+            document.getElementById('wallet-badge').textContent = `₹${formatCurrency(wallet.balance)}`;
+        }
+
+        // Update referral badge
+        const { data: referrals } = await supabaseClient
+            .from('referrals')
+            .select('id', { count: 'exact' })
+            .eq('referrer_id', user.id)
+            .eq('level', 1);
+
+        if (document.getElementById('referral-badge')) {
+            document.getElementById('referral-badge').textContent = referrals || 0;
+        }
+
+        // Update KYC badge
+        const { data: kyc } = await supabaseClient
+            .from('kyc_docs')
+            .select('status')
+            .eq('user_id', user.id)
+            .single();
+
+        const kycBadge = document.getElementById('kyc-badge');
+        if (kycBadge) {
+            const status = kyc ? kyc.status : 'pending';
+            const statusText = {
+                'approved': 'Verified',
+                'pending': 'Pending',
+                'rejected': 'Rejected',
+                'not_submitted': 'Required'
+            }[status] || 'Required';
+            
+            kycBadge.textContent = statusText;
+            kycBadge.className = `nav-badge ${getKycBadgeClass(status)}`;
+        }
+
+        // Update notification badge
+        const { data: notifications } = await supabaseClient
+            .from('notifications')
+            .select('id', { count: 'exact' })
+            .eq('user_id', user.id)
+            .eq('read_status', false);
+
+        if (document.getElementById('notification-count')) {
+            const count = notifications || 0;
+            document.getElementById('notification-count').textContent = count;
+            document.getElementById('notification-count').style.display = count > 0 ? 'inline' : 'none';
+        }
+
+    } catch (error) {
+        console.error('Error updating sidebar badges:', error);
+    }
+}
+
+// Get KYC badge class based on status
+function getKycBadgeClass(status) {
+    const classes = {
+        'approved': 'bg-success',
+        'pending': 'bg-warning',
+        'rejected': 'bg-danger',
+        'not_submitted': 'bg-secondary'
+    };
+    return classes[status] || 'bg-secondary';
 }
 
 // Load dashboard data
@@ -398,11 +478,13 @@ function setupEventListeners() {
         const toggleButton = document.createElement('button');
         toggleButton.className = 'sidebar-toggle';
         toggleButton.innerHTML = '<i class="bi bi-list"></i>';
+        toggleButton.setAttribute('aria-label', 'Toggle Sidebar');
         document.body.appendChild(toggleButton);
 
         // Add sidebar overlay to the DOM
         const overlay = document.createElement('div');
         overlay.className = 'sidebar-overlay';
+        overlay.setAttribute('aria-hidden', 'true');
         document.body.appendChild(overlay);
 
         // Sidebar toggle functionality
@@ -416,9 +498,22 @@ function setupEventListeners() {
                 sidebar.classList.toggle('active');
                 overlay.classList.toggle('active');
                 document.body.style.overflow = sidebar.classList.contains('active') ? 'hidden' : '';
+                
+                // Update aria attributes
+                const isOpen = sidebar.classList.contains('active');
+                sidebar.setAttribute('aria-hidden', !isOpen);
+                overlay.setAttribute('aria-hidden', !isOpen);
             } else {
                 sidebar.classList.toggle('sidebar-collapsed');
                 mainContent.classList.toggle('main-content-expanded');
+                
+                // Update toggle button icon
+                const icon = toggleButton.querySelector('i');
+                if (sidebar.classList.contains('sidebar-collapsed')) {
+                    icon.className = 'bi bi-arrow-right';
+                } else {
+                    icon.className = 'bi bi-list';
+                }
             }
         }
 
@@ -434,6 +529,8 @@ function setupEventListeners() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
+                sidebar.setAttribute('aria-hidden', 'true');
+                overlay.setAttribute('aria-hidden', 'true');
             }
         });
 
@@ -448,6 +545,8 @@ function setupEventListeners() {
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
                     document.body.style.overflow = '';
+                    sidebar.setAttribute('aria-hidden', 'false');
+                    overlay.setAttribute('aria-hidden', 'true');
                 }
             }, 250);
         });
@@ -461,6 +560,19 @@ function setupEventListeners() {
                 sidebar.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
+                sidebar.setAttribute('aria-hidden', 'true');
+                overlay.setAttribute('aria-hidden', 'true');
+            }
+        });
+
+        // Keyboard navigation for accessibility
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && sidebar.classList.contains('active')) {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                sidebar.setAttribute('aria-hidden', 'true');
+                overlay.setAttribute('aria-hidden', 'true');
             }
         });
 
@@ -468,6 +580,9 @@ function setupEventListeners() {
         setupFormSubmissions();
         setupThemeToggle();
         setupNotifications();
+        
+        // Auto-refresh badges every 30 seconds
+        setInterval(updateSidebarBadges, 30000);
         
     } catch (error) {
         console.error('Error setting up event listeners:', error);

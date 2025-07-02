@@ -9,53 +9,101 @@
     <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
-    <!-- Sidebar -->
+    <!-- Professional Sidebar -->
     <aside class="sidebar">
-        <div class="p-3">
-            <!-- User Profile Section -->
-            <div class="text-center mb-4">
-                <img id="user-avatar" src="../assets/img/avatar-placeholder.png" alt="User Avatar" class="rounded-circle mb-2" width="80" height="80">
-                <h6 id="user-name" class="mb-1">Loading...</h6>
-                <span id="user-level" class="badge bg-primary">Level 1</span>
+        <!-- Sidebar Header -->
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="bi bi-gem"></i>
             </div>
+            <h4 class="sidebar-title">SJA Foundation</h4>
+            <p class="sidebar-subtitle">Investment Platform</p>
+        </div>
 
-            <!-- Navigation -->
-            <nav class="nav flex-column">
+        <!-- User Profile Section -->
+        <div class="sidebar-profile">
+            <img id="user-avatar" src="../assets/img/avatar-placeholder.png" alt="User Avatar" class="profile-avatar">
+            <h6 id="user-name" class="profile-name">Loading...</h6>
+            <span id="user-level" class="profile-level">Level 1</span>
+        </div>
+
+        <!-- Navigation Sections -->
+        <nav class="sidebar-nav">
+            <!-- Main Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Main</h6>
                 <a href="client-dashboard.html" class="nav-link active">
                     <i class="bi bi-speedometer2"></i>
                     <span class="nav-text">Dashboard</span>
                 </a>
                 <a href="investments.html" class="nav-link">
-                    <i class="bi bi-graph-up"></i>
+                    <i class="bi bi-graph-up-arrow"></i>
                     <span class="nav-text">Investments</span>
                 </a>
                 <a href="wallet.html" class="nav-link">
                     <i class="bi bi-wallet2"></i>
                     <span class="nav-text">Wallet</span>
+                    <span class="nav-badge" id="wallet-badge">₹0</span>
                 </a>
+            </div>
+
+            <!-- Network Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Network</h6>
                 <a href="referrals.html" class="nav-link">
-                    <i class="bi bi-people"></i>
-                    <span class="nav-text">Referrals</span>
+                    <i class="bi bi-people-fill"></i>
+                    <span class="nav-text">My Network</span>
+                    <span class="nav-badge" id="referral-badge">0</span>
                 </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-gift"></i>
+                    <span class="nav-text">Rewards</span>
+                </a>
+            </div>
+
+            <!-- Account Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Account</h6>
                 <a href="kyc.html" class="nav-link">
-                    <i class="bi bi-person-badge"></i>
-                    <span class="nav-text">KYC</span>
+                    <i class="bi bi-shield-check"></i>
+                    <span class="nav-text">KYC Verification</span>
+                    <span class="nav-badge" id="kyc-badge">Pending</span>
                 </a>
                 <a href="profile.html" class="nav-link">
-                    <i class="bi bi-person-circle"></i>
-                    <span class="nav-text">Profile</span>
+                    <i class="bi bi-person-gear"></i>
+                    <span class="nav-text">Profile Settings</span>
                 </a>
-            </nav>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-bell"></i>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge" id="notification-count">0</span>
+                </a>
+            </div>
 
-            <!-- Bottom Actions -->
-            <div class="mt-auto pt-3">
-                <button id="theme-toggle" class="btn btn-outline-secondary w-100 mb-2">
+            <!-- Support Section -->
+            <div class="nav-section">
+                <h6 class="nav-section-title">Support</h6>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-headset"></i>
+                    <span class="nav-text">Help Center</span>
+                </a>
+                <a href="#" class="nav-link">
+                    <i class="bi bi-chat-dots"></i>
+                    <span class="nav-text">Contact Support</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar-footer">
+            <div class="footer-actions">
+                <button id="theme-toggle" class="footer-btn">
                     <i class="bi bi-sun-fill"></i>
-                    <span class="nav-text">Toggle Theme</span>
+                    <span>Toggle Theme</span>
                 </button>
-                <button id="logout-btn" class="btn btn-danger w-100">
+                <button id="logout-btn" class="footer-btn btn-danger">
                     <i class="bi bi-box-arrow-right"></i>
-                    <span class="nav-text">Logout</span>
+                    <span>Sign Out</span>
                 </button>
             </div>
         </div>
@@ -63,118 +111,169 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Header -->
+        <!-- Header with breadcrumb and actions -->
         <header class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h4 class="mb-1">Welcome Back!</h4>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-1">
+                        <li class="breadcrumb-item"><a href="#" class="text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </nav>
+                <h4 class="mb-0">Welcome Back!</h4>
                 <p class="text-muted mb-0" id="current-date">Loading...</p>
             </div>
-            <div class="d-flex align-items-center">
-                <button id="notification-bell" class="btn btn-link position-relative me-2">
-                    <i class="bi bi-bell-fill fs-5"></i>
-                    <span class="notification-badge">0</span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-download"></i>
+                    Export
+                </button>
+                <button class="btn btn-primary btn-sm">
+                    <i class="bi bi-plus-lg"></i>
+                    New Investment
                 </button>
             </div>
         </header>
 
         <!-- Dashboard Content -->
-        <div class="row g-3">
-            <!-- Quick Stats -->
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100">
+        <div class="row g-4">
+            <!-- Quick Stats Cards -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <div class="stat-icon bg-primary bg-opacity-10 text-primary me-3">
                                 <i class="bi bi-wallet2"></i>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="card-title mb-1">Wallet Balance</h6>
-                                <h3 id="wallet-balance" class="mb-0">₹0.00</h3>
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1 text-muted">Wallet Balance</h6>
+                                <h3 id="wallet-balance" class="mb-0 fw-bold">₹0.00</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-arrow-up"></i> +5.2% from last month
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-success bg-opacity-10 text-success">
-                                <i class="bi bi-graph-up"></i>
+                            <div class="stat-icon bg-success bg-opacity-10 text-success me-3">
+                                <i class="bi bi-graph-up-arrow"></i>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="card-title mb-1">Total Investment</h6>
-                                <h3 id="total-investment" class="mb-0">₹0.00</h3>
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1 text-muted">Total Investment</h6>
+                                <h3 id="total-investment" class="mb-0 fw-bold">₹0.00</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-arrow-up"></i> +12.8% growth
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                                <i class="bi bi-people"></i>
+                            <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                                <i class="bi bi-people-fill"></i>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="card-title mb-1">Referrals</h6>
-                                <h3 id="referral-count" class="mb-0">0</h3>
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1 text-muted">Active Referrals</h6>
+                                <h3 id="referral-count" class="mb-0 fw-bold">0</h3>
+                                <small class="text-info">
+                                    <i class="bi bi-plus"></i> 3 new this week
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-6 col-lg-3">
-                <div class="card h-100">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <div class="stat-icon bg-info bg-opacity-10 text-info me-3">
                                 <i class="bi bi-currency-rupee"></i>
                             </div>
-                            <div class="ms-3">
-                                <h6 class="card-title mb-1">Referral Earnings</h6>
-                                <h3 id="referral-earnings" class="mb-0">₹0.00</h3>
+                            <div class="flex-grow-1">
+                                <h6 class="card-title mb-1 text-muted">Total Earnings</h6>
+                                <h3 id="referral-earnings" class="mb-0 fw-bold">₹0.00</h3>
+                                <small class="text-success">
+                                    <i class="bi bi-arrow-up"></i> +8.4% this month
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Charts -->
+            <!-- Charts Section -->
             <div class="col-12 col-lg-8">
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Investment Portfolio</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                    Last 6 months
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Last 30 days</a></li>
+                                    <li><a class="dropdown-item" href="#">Last 3 months</a></li>
+                                    <li><a class="dropdown-item" href="#">Last 6 months</a></li>
+                                    <li><a class="dropdown-item" href="#">Last year</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">Investment Distribution</h5>
-                        <canvas id="investment-distribution"></canvas>
+                        <canvas id="investment-distribution" height="300"></canvas>
                     </div>
                 </div>
             </div>
 
             <div class="col-12 col-lg-4">
-                <div class="card h-100">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <h5 class="card-title mb-0">Network Growth</h5>
+                    </div>
                     <div class="card-body">
-                        <h5 class="card-title">Referral Network</h5>
-                        <canvas id="referral-distribution"></canvas>
+                        <canvas id="referral-distribution" height="300"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- KYC Status -->
+            <!-- KYC Status Card -->
             <div class="col-12">
-                <div class="card">
+                <div class="card border-0 shadow-sm">
                     <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h5 class="card-title mb-1">KYC Status</h5>
-                                <p class="text-muted mb-0">Complete your KYC to unlock all features</p>
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <div class="d-flex align-items-center">
+                                    <div class="stat-icon bg-warning bg-opacity-10 text-warning me-3">
+                                        <i class="bi bi-shield-exclamation"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="card-title mb-1">Complete Your KYC Verification</h5>
+                                        <p class="text-muted mb-0">Verify your identity to unlock all platform features and increase your investment limits.</p>
+                                        <div class="mt-2">
+                                            <span id="kyc-status" class="badge bg-warning">PENDING VERIFICATION</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <span id="kyc-status" class="badge bg-warning">PENDING</span>
-                                <a href="kyc.html" class="btn btn-primary btn-sm ms-3">Update KYC</a>
+                            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                                <a href="kyc.html" class="btn btn-primary">
+                                    <i class="bi bi-shield-check"></i>
+                                    Complete KYC
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -184,6 +283,7 @@
     </main>
 
     <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
     <script src="../assets/js/config.js"></script>
